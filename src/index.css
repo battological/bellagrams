@@ -1,0 +1,33 @@
+#words {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.word {
+    display: flex;
+    margin-bottom: 15px;
+    margin-right: 30px;
+}
+
+.char {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: 0 5px;
+    width: 25px;
+}
+
+.char hr {
+    width: 100%;
+}
+
+.char input {
+    border: 0;
+    text-align: center;
+    width: 20px;
+}
+
+.plain-char {
+    margin: 0 15px;
+    size: xx-large;
+}
