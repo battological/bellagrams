@@ -6,23 +6,8 @@ export default class Puzzle extends React.Component {
   constructor(props) {
     super(props);
 
-    this.NONE_CHAR = '   ';
-
     this.abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     this.shuffledAbc = shuffle(this.abc, { 'copy': true });
-
-    this.chars = props.quote['quote'].toUpperCase().split('');
-    this.words = props.quote['quote'].toUpperCase().split(' ').map(word => word.split(''));
-    const charSettings = {};
-    this.chars.forEach((char, i) => {
-      charSettings[char] = this.abc.indexOf(char) > -1 ? this.NONE_CHAR : char;
-    });
-
-    this.inputRefs = this.words.map(word => word.filter(c => this.abc.indexOf(c) > -1).map(c => React.createRef()));
-
-    this.state = {
-      charSettings: charSettings,
-    };
   }
 
   shuffledChar(char) {
@@ -31,49 +16,41 @@ export default class Puzzle extends React.Component {
   }
 
   handleCharChange(wordI, charJ, newSetting) {
-    const char = this.words[wordI][charJ];
+    const char = this.props.words[wordI][charJ];
     newSetting = newSetting.toUpperCase();
 
-    const charSettings = Object.assign({}, this.state.charSettings, {[char]: newSetting});
-    this.setState({
-      charSettings: charSettings,
-    });
+    const charSettings = Object.assign({}, this.props.charSettings, {[char]: newSetting});
+    this.props.changeChar(charSettings);
 
     const getNextInputRef = () => {
-      for (let i=0; i < this.words.length; i++) {
-        for (let j=0; j < this.words[i].length; j++) {
-          if (charSettings[this.words[i][j]] === this.NONE_CHAR) {
-            return this.inputRefs[i][j].current;
+      for (let i=0; i < this.props.words.length; i++) {
+        for (let j=0; j < this.props.words[i].length; j++) {
+          if (charSettings[this.props.words[i][j]] === this.props.NONE_CHAR) {
+            return this.props.inputRefs[i][j].current;
           }
         }
       }
-      return this.inputRefs[0][0].current;
+      return this.props.inputRefs[0][0].current;
     }
     const inputRef = getNextInputRef();
     inputRef.focus();
     inputRef.select();
-
-    const won = !(new Set(this.chars.map(char => charSettings[char] === char))).has(false);
-    if (won) {
-      this.props.handleWin();
-    }
   }
 
   componentDidMount() {
-    this.inputRefs[0][0].current.focus();
-    this.inputRefs[0][0].current.select();
+    this.props.inputRefs[0][0].current.focus();
+    this.props.inputRefs[0][0].current.select();
   }
 
   render() {
-    const status = this.state.won ? "That's right!" : '';
     return (
       <div id='puzzle'>
-        <h2>{this.props.quote['author']}</h2>
-        <h3>{this.props.quote['genre']}</h3>
+        <h2>{this.props.author}</h2>
+        <h3>{this.props.genre}</h3>
         <div id='status'>{status}</div>
         <div id='words'>
             {
-              this.words.map((word, i) => {
+              this.props.words.map((word, i) => {
                 return (
                   <div className='word' key={i}>
                     {
@@ -83,10 +60,10 @@ export default class Puzzle extends React.Component {
                             <Character
                               key={j}
                               crypt={this.shuffledChar(char)}
-                              current={this.state.charSettings[char]}
+                              current={this.props.charSettings[char]}
                               onChange={(newSetting) => this.handleCharChange(i, j, newSetting)}
                               canChange={!this.props.won}
-                              inputRef={this.inputRefs[i][j]}
+                              inputRef={this.props.inputRefs[i][j]}
                             />
                           );
                         } else {
